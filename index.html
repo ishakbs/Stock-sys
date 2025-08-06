@@ -524,6 +524,30 @@
                         <div class="number" id="totalInventoryValue">$0</div>
                     </div>
                 </div>
+
+                <!-- Data Management Section -->
+                <div class="form-section">
+                    <h2>💾 Data Management</h2>
+                    <p style="color: #666; margin-bottom: 20px;">Backup and restore your inventory data to prevent data loss</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <button class="btn btn-success" onclick="stockManager.exportData()">
+                            📥 Export All Data
+                        </button>
+                        <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">
+                            📤 Import Data
+                        </button>
+                        <button class="btn btn-danger" onclick="stockManager.clearAllData()">
+                            🗑️ Clear All Data
+                        </button>
+                    </div>
+                    
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="stockManager.importData(event)">
+                    
+                    <div style="background: #f0f8ff; padding: 15px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #4facfe;">
+                        <strong>💡 Tip:</strong> Regular backups protect your data from browser issues, computer crashes, or accidental deletion. Export your data weekly!
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1264,6 +1288,89 @@
                     </html>
                 `);
                 receiptWindow.document.close();
+            }
+
+            // Data Management Functions
+            exportData() {
+                const data = {
+                    products: this.products,
+                    transactions: this.transactions,
+                    exportDate: new Date().toISOString(),
+                    version: '1.0'
+                };
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `stock-management-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                this.showNotification('Data exported successfully!', 'success');
+            }
+
+            importData(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        
+                        // Validate data structure
+                        if (!data.products || !Array.isArray(data.products)) {
+                            throw new Error('Invalid data format: products array missing');
+                        }
+
+                        // Confirm import
+                        if (confirm(`This will replace all current data with the backup from ${new Date(data.exportDate).toLocaleDateString()}. Are you sure?`)) {
+                            this.products = data.products;
+                            this.transactions = data.transactions || [];
+                            
+                            this.saveProducts();
+                            this.saveTransactions();
+                            
+                            this.renderProducts();
+                            this.renderAvailableProducts();
+                            this.updateDashboard();
+                            this.clearCart();
+                            
+                            this.showNotification(`Data imported successfully! Restored ${data.products.length} products and ${data.transactions.length} transactions.`, 'success');
+                        }
+                    } catch (error) {
+                        this.showNotification('Error importing data: Invalid file format', 'error');
+                        console.error('Import error:', error);
+                    }
+                };
+                reader.readAsText(file);
+                
+                // Reset file input
+                event.target.value = '';
+            }
+
+            clearAllData() {
+                if (confirm('⚠️ This will permanently delete ALL products, transactions, and data. This cannot be undone! Are you sure?')) {
+                    if (confirm('🚨 FINAL WARNING: This will delete everything. Type "DELETE" in your mind and click OK to confirm.')) {
+                        this.products = [];
+                        this.transactions = [];
+                        this.cart = [];
+                        
+                        localStorage.removeItem('stockProducts');
+                        localStorage.removeItem('transactions');
+                        
+                        this.renderProducts();
+                        this.renderAvailableProducts();
+                        this.updateDashboard();
+                        this.renderCart();
+                        
+                        this.showNotification('All data cleared successfully!', 'success');
+                    }
+                }
             }
 
             showNotification(message, type) {
