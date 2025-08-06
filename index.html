@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 20px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-tab.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-tab:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .form-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            position: relative;
+        }
+
+        .form-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border-radius: 2px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4facfe;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.2);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #feca57, #ff9ff3);
+        }
+
+        .btn-add-cart {
+            background: linear-gradient(45deg, #48cae4, #0096c7);
+            font-size: 0.8rem;
+            padding: 8px 15px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .cart-item-price {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .qty-btn {
+            background: #4facfe;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .qty-btn:hover {
+            background: #0096c7;
+            transform: scale(1.1);
+        }
+
+        .qty-display {
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            padding: 5px 10px;
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .remove-item {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .remove-item:hover {
+            background: #ee5a24;
+            transform: scale(1.1);
+        }
+
+        .stock-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+        }
+
+        .table-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background: #f8f9ff;
+            transform: scale(1.01);
+        }
+
+        .status-expired {
+            background: #ffe6e6;
+            color: #d63031;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-expiring {
+            background: #fff4e6;
+            color: #e17055;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-fresh {
+            background: #e6fff0;
+            color: #00b894;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 25px;
+            font-size: 1rem;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #4facfe;
+            background: white;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="stockManager.showPage('dashboard')">
+                📊 Dashboard
+            </button>
+            <button class="nav-tab" onclick="stockManager.showPage('add-product')">
+                ➕ Add Product
+            </button>
+            <button class="nav-tab" onclick="stockManager.showPage('inventory')">
+                📦 Current Inventory
+            </button>
+            <button class="nav-tab" onclick="stockManager.showPage('checkout')">
+                💳 Cash Desk
+            </button>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard" class="page active">
+            <div class="header">
+                <h1>📊 Stock Management Dashboard</h1>
+                <p>Monitor your inventory performance and key metrics</p>
+            </div>
+
+            <div class="main-content">
+                <!-- Dashboard Stats -->
+                <div class="dashboard">
+                    <div class="stat-card">
+                        <h3>Total Products</h3>
+                        <div class="number" id="totalProducts">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Expired Items</h3>
+                        <div class="number" id="expiredItems">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Expiring Soon</h3>
+                        <div class="number" id="expiringSoonItems">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Inventory Value</h3>
+                        <div class="number" id="totalInventoryValue">$0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Product Page -->
+        <div id="add-product" class="page">
+            <div class="header">
+                <h1>➕ Add New Product</h1>
+                <p>Add new items to your inventory management system</p>
+            </div>
+
+            <div class="main-content">
+                <!-- Add Product Form -->
+                <div class="form-section">
+                    <h2>🆕 Product Information</h2>
+                    <form id="productForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="productName">Product Name</label>
+                                <input type="text" id="productName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productCategory">Category</label>
+                                <select id="productCategory" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Clothing">Clothing</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Books">Books</option>
+                                    <option value="Tools">Tools</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="buyingPrice">Buying Price ($)</label>
+                                <input type="number" id="buyingPrice" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sellingPrice">Selling Price ($)</label>
+                                <input type="number" id="sellingPrice" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productQuantity">Quantity</label>
+                                <input type="number" id="productQuantity" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="expiryDate">Expiry Date</label>
+                                <input type="date" id="expiryDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="supplier">Supplier</label>
+                                <input type="text" id="supplier" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn">Add Product</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Inventory Page -->
+        <div id="inventory" class="page">
+            <div class="header">
+                <h1>📦 Current Inventory</h1>
+                <p>View and manage your complete product inventory</p>
+            </div>
+
+            <div class="main-content">
+                <!-- Search and Filter -->
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="🔍 Search products by name, category, or supplier...">
+                </div>
+
+                <!-- Products Table -->
+                <div class="stock-table">
+                    <div class="table-header">
+                        <h2>📦 Product Inventory</h2>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Buying Price</th>
+                                <th>Selling Price</th>
+                                <th>Quantity</th>
+                                <th>Inventory Value</th>
+                                <th>Expiry Date</th>
+                                <th>Status</th>
+                                <th>Supplier</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cash Desk / Checkout Page -->
+        <div id="checkout" class="page">
+            <div class="header">
+                <h1>💳 Cash Desk</h1>
+                <p>Process sales transactions and manage checkout</p>
+            </div>
+
+            <div class="main-content">
+                <div style="display: grid; grid-template-columns: 1fr 400px; gap: 30px;">
+                    <!-- Product Selection -->
+                    <div>
+                        <div class="form-section">
+                            <h2>🛍️ Product Selection</h2>
+                            
+                            <!-- Product Search -->
+                            <div class="search-box">
+                                <input type="text" id="checkoutSearch" placeholder="🔍 Search products for sale...">
+                            </div>
+
+                            <!-- Available Products -->
+                            <div class="stock-table">
+                                <div class="table-header">
+                                    <h2>🏪 Available Products</h2>
+                                </div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Price</th>
+                                            <th>Stock</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="availableProductsTable">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shopping Cart -->
+                    <div>
+                        <div class="form-section">
+                            <h2>🛒 Shopping Cart</h2>
+                            
+                            <div id="cartItems">
+                                <div style="text-align: center; color: #666; padding: 40px 0;">
+                                    <p>🛒 Cart is empty</p>
+                                    <p>Add products from the left panel</p>
+                                </div>
+                            </div>
+
+                            <!-- Cart Summary -->
+                            <div style="border-top: 2px solid #eee; margin-top: 20px; padding-top: 20px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span><strong>Subtotal:</strong></span>
+                                    <span id="cartSubtotal">$0.00</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                    <span><strong>Tax (10%):</strong></span>
+                                    <span id="cartTax">$0.00</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; color: #333; border-top: 1px solid #ddd; padding-top: 10px;">
+                                    <span>Total:</span>
+                                    <span id="cartTotal">$0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Payment Section -->
+                            <div style="margin-top: 20px;">
+                                <div class="form-group">
+                                    <label for="paymentMethod">Payment Method</label>
+                                    <select id="paymentMethod">
+                                        <option value="cash">💵 Cash</option>
+                                        <option value="card">💳 Credit/Debit Card</option>
+                                        <option value="mobile">📱 Mobile Payment</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="customerName">Customer Name (Optional)</label>
+                                    <input type="text" id="customerName" placeholder="Enter customer name">
+                                </div>
+
+                                <button class="btn" style="width: 100%; margin-top: 15px; font-size: 1.1rem;" onclick="stockManager.processCheckout()" id="checkoutBtn" disabled>
+                                    💳 Process Payment
+                                </button>
+                                
+                                <button class="btn btn-danger" style="width: 100%; margin-top: 10px;" onclick="stockManager.clearCart()">
+                                    🗑️ Clear Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>✏️ Edit Product</h2>
+            <form id="editForm">
+                <div class="form-group">
+                    <label for="editProductName">Product Name</label>
+                    <input type="text" id="editProductName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editProductCategory">Category</label>
+                    <select id="editProductCategory" required>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Clothing">Clothing</option>
+                        <option value="Food">Food</option>
+                        <option value="Books">Books</option>
+                        <option value="Tools">Tools</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editBuyingPrice">Buying Price ($)</label>
+                    <input type="number" id="editBuyingPrice" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="editSellingPrice">Selling Price ($)</label>
+                    <input type="number" id="editSellingPrice" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="editProductQuantity">Quantity</label>
+                    <input type="number" id="editProductQuantity" required>
+                </div>
+                <div class="form-group">
+                    <label for="editExpiryDate">Expiry Date</label>
+                    <input type="date" id="editExpiryDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="editSupplier">Supplier</label>
+                    <input type="text" id="editSupplier" required>
+                </div>
+                <button type="submit" class="btn btn-success">Update Product</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        class StockManager {
+            constructor() {
+                this.products = JSON.parse(localStorage.getItem('stockProducts')) || [];
+                this.currentEditId = null;
+                this.cart = [];
+                this.transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.renderProducts();
+                this.updateDashboard();
+                this.showPage('dashboard'); // Start with dashboard page
+            }
+
+            bindEvents() {
+                document.getElementById('productForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addProduct();
+                });
+
+                document.getElementById('editForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.updateProduct();
+                });
+
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.searchProducts(e.target.value);
+                });
+
+                document.getElementById('checkoutSearch').addEventListener('input', (e) => {
+                    this.searchAvailableProducts(e.target.value);
+                });
+
+                document.querySelector('.close').addEventListener('click', () => {
+                    this.closeModal();
+                });
+
+                window.addEventListener('click', (e) => {
+                    if (e.target === document.getElementById('editModal')) {
+                        this.closeModal();
+                    }
+                });
+            }
+
+            showPage(pageId) {
+                // Hide all pages
+                const pages = document.querySelectorAll('.page');
+                pages.forEach(page => page.classList.remove('active'));
+
+                // Hide all nav tabs active state
+                const tabs = document.querySelectorAll('.nav-tab');
+                tabs.forEach(tab => tab.classList.remove('active'));
+
+                // Show selected page
+                document.getElementById(pageId).classList.add('active');
+
+                // Activate corresponding tab
+                const activeTab = [...tabs].find(tab => 
+                    tab.textContent.toLowerCase().includes(pageId.replace('-', ' '))
+                );
+                if (activeTab) activeTab.classList.add('active');
+
+                // Update data when switching to dashboard or inventory
+                if (pageId === 'dashboard') {
+                    this.updateDashboard();
+                } else if (pageId === 'inventory') {
+                    this.renderProducts();
+                } else if (pageId === 'checkout') {
+                    this.renderAvailableProducts();
+                }
+            }
+
+            addProduct() {
+                const product = {
+                    id: Date.now().toString(),
+                    name: document.getElementById('productName').value,
+                    category: document.getElementById('productCategory').value,
+                    buyingPrice: parseFloat(document.getElementById('buyingPrice').value),
+                    sellingPrice: parseFloat(document.getElementById('sellingPrice').value),
+                    quantity: parseInt(document.getElementById('productQuantity').value),
+                    expiryDate: document.getElementById('expiryDate').value,
+                    supplier: document.getElementById('supplier').value,
+                    dateAdded: new Date().toISOString()
+                };
+
+                this.products.push(product);
+                this.saveProducts();
+                this.renderProducts();
+                this.updateDashboard();
+                this.clearForm();
+                this.showNotification('Product added successfully!', 'success');
+                
+                // Switch to inventory page to show the newly added product
+                this.showPage('inventory');
+            }
+
+            editProduct(id) {
+                const product = this.products.find(p => p.id === id);
+                if (!product) return;
+
+                this.currentEditId = id;
+                document.getElementById('editProductName').value = product.name;
+                document.getElementById('editProductCategory').value = product.category;
+                document.getElementById('editBuyingPrice').value = product.buyingPrice;
+                document.getElementById('editSellingPrice').value = product.sellingPrice;
+                document.getElementById('editProductQuantity').value = product.quantity;
+                document.getElementById('editExpiryDate').value = product.expiryDate;
+                document.getElementById('editSupplier').value = product.supplier;
+
+                document.getElementById('editModal').style.display = 'block';
+            }
+
+            updateProduct() {
+                if (!this.currentEditId) return;
+
+                const productIndex = this.products.findIndex(p => p.id === this.currentEditId);
+                if (productIndex === -1) return;
+
+                this.products[productIndex] = {
+                    ...this.products[productIndex],
+                    name: document.getElementById('editProductName').value,
+                    category: document.getElementById('editProductCategory').value,
+                    buyingPrice: parseFloat(document.getElementById('editBuyingPrice').value),
+                    sellingPrice: parseFloat(document.getElementById('editSellingPrice').value),
+                    quantity: parseInt(document.getElementById('editProductQuantity').value),
+                    expiryDate: document.getElementById('editExpiryDate').value,
+                    supplier: document.getElementById('editSupplier').value
+                };
+
+                this.saveProducts();
+                this.renderProducts();
+                this.updateDashboard();
+                this.closeModal();
+                this.showNotification('Product updated successfully!', 'success');
+            }
+
+            deleteProduct(id) {
+                if (confirm('Are you sure you want to delete this product?')) {
+                    this.products = this.products.filter(p => p.id !== id);
+                    this.saveProducts();
+                    this.renderProducts();
+                    this.updateDashboard();
+                    this.showNotification('Product deleted successfully!', 'success');
+                }
+            }
+
+            getExpiryStatus(expiryDate) {
+                const today = new Date();
+                const expiry = new Date(expiryDate);
+                const diffTime = expiry - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays < 0) return { class: 'status-expired', text: 'Expired' };
+                if (diffDays <= 7) return { class: 'status-expiring', text: `Expires in ${diffDays} days` };
+                return { class: 'status-fresh', text: 'Fresh' };
+            }
+
+            renderProducts(productsToRender = this.products) {
+                const tbody = document.getElementById('productTableBody');
+                tbody.innerHTML = '';
+
+                productsToRender.forEach(product => {
+                    const status = this.getExpiryStatus(product.expiryDate);
+                    const inventoryValue = (product.buyingPrice * product.quantity).toFixed(2);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${product.name}</strong></td>
+                        <td>${product.category}</td>
+                        <td>${product.buyingPrice.toFixed(2)}</td>
+                        <td>${product.sellingPrice.toFixed(2)}</td>
+                        <td>${product.quantity}</td>
+                        <td><strong>${inventoryValue}</strong></td>
+                        <td>${new Date(product.expiryDate).toLocaleDateString()}</td>
+                        <td><span class="${status.class}">${status.text}</span></td>
+                        <td>${product.supplier}</td>
+                        <td class="actions">
+                            <button class="btn btn-warning btn-sm" onclick="stockManager.editProduct('${product.id}')">
+                                Edit
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="stockManager.deleteProduct('${product.id}')">
+                                Delete
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            searchProducts(query) {
+                const filteredProducts = this.products.filter(product => 
+                    product.name.toLowerCase().includes(query.toLowerCase()) ||
+                    product.category.toLowerCase().includes(query.toLowerCase()) ||
+                    product.supplier.toLowerCase().includes(query.toLowerCase())
+                );
+                this.renderProducts(filteredProducts);
+            }
+
+            updateDashboard() {
+                const totalProducts = this.products.length;
+                const today = new Date();
+                
+                const expiredItems = this.products.filter(p => {
+                    const expiry = new Date(p.expiryDate);
+                    return expiry < today;
+                }).length;
+                
+                const expiringSoonItems = this.products.filter(p => {
+                    const expiry = new Date(p.expiryDate);
+                    const diffTime = expiry - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays >= 0 && diffDays <= 7;
+                }).length;
+                
+                const totalInventoryValue = this.products.reduce((sum, p) => sum + (p.buyingPrice * p.quantity), 0);
+
+                document.getElementById('totalProducts').textContent = totalProducts;
+                document.getElementById('expiredItems').textContent = expiredItems;
+                document.getElementById('expiringSoonItems').textContent = expiringSoonItems;
+                document.getElementById('totalInventoryValue').textContent = `${totalInventoryValue.toFixed(2)}`;
+            }
+
+            clearForm() {
+                document.getElementById('productForm').reset();
+            }
+
+            closeModal() {
+                document.getElementById('editModal').style.display = 'none';
+                this.currentEditId = null;
+            }
+
+            saveProducts() {
+                localStorage.setItem('stockProducts', JSON.stringify(this.products));
+            }
+
+            saveTransactions() {
+                localStorage.setItem('transactions', JSON.stringify(this.transactions));
+            }
+
+            // Checkout/Cash Desk Functions
+            renderAvailableProducts(productsToRender = null) {
+                const tbody = document.getElementById('availableProductsTable');
+                tbody.innerHTML = '';
+
+                const products = productsToRender || this.products.filter(p => p.quantity > 0);
+
+                products.forEach(product => {
+                    const status = this.getExpiryStatus(product.expiryDate);
+                    const isExpired = status.class === 'status-expired';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <strong>${product.name}</strong><br>
+                            <small style="color: #666;">${product.category}</small>
+                        </td>
+                        <td><strong>${product.sellingPrice.toFixed(2)}</strong></td>
+                        <td>${product.quantity}</td>
+                        <td><span class="${status.class}">${status.text}</span></td>
+                        <td>
+                            <button class="btn btn-add-cart btn-sm" 
+                                    onclick="stockManager.addToCart('${product.id}')"
+                                    ${isExpired ? 'disabled title="Product expired"' : ''}>
+                                ${isExpired ? '❌ Expired' : '🛒 Add'}
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                if (products.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666; padding: 20px;">No products available for sale</td></tr>';
+                }
+            }
+
+            searchAvailableProducts(query) {
+                const filteredProducts = this.products.filter(product => 
+                    product.quantity > 0 && (
+                        product.name.toLowerCase().includes(query.toLowerCase()) ||
+                        product.category.toLowerCase().includes(query.toLowerCase())
+                    )
+                );
+                this.renderAvailableProducts(filteredProducts);
+            }
+
+            addToCart(productId) {
+                const product = this.products.find(p => p.id === productId);
+                if (!product || product.quantity === 0) return;
+
+                // Check if product is expired
+                const status = this.getExpiryStatus(product.expiryDate);
+                if (status.class === 'status-expired') {
+                    this.showNotification('Cannot sell expired products!', 'error');
+                    return;
+                }
+
+                const existingItem = this.cart.find(item => item.id === productId);
+                
+                if (existingItem) {
+                    if (existingItem.quantity < product.quantity) {
+                        existingItem.quantity++;
+                    } else {
+                        this.showNotification('Not enough stock available!', 'error');
+                        return;
+                    }
+                } else {
+                    this.cart.push({
+                        id: productId,
+                        name: product.name,
+                        price: product.sellingPrice,
+                        quantity: 1,
+                        maxQuantity: product.quantity
+                    });
+                }
+
+                this.renderCart();
+                this.showNotification('Product added to cart!', 'success');
+            }
+
+            removeFromCart(productId) {
+                this.cart = this.cart.filter(item => item.id !== productId);
+                this.renderCart();
+                this.showNotification('Product removed from cart!', 'success');
+            }
+
+            updateCartQuantity(productId, change) {
+                const item = this.cart.find(item => item.id === productId);
+                if (!item) return;
+
+                const newQuantity = item.quantity + change;
+                
+                if (newQuantity <= 0) {
+                    this.removeFromCart(productId);
+                } else if (newQuantity <= item.maxQuantity) {
+                    item.quantity = newQuantity;
+                    this.renderCart();
+                } else {
+                    this.showNotification('Not enough stock available!', 'error');
+                }
+            }
+
+            renderCart() {
+                const cartContainer = document.getElementById('cartItems');
+                
+                if (this.cart.length === 0) {
+                    cartContainer.innerHTML = `
+                        <div style="text-align: center; color: #666; padding: 40px 0;">
+                            <p>🛒 Cart is empty</p>
+                            <p>Add products from the left panel</p>
+                        </div>
+                    `;
+                    this.updateCartTotals();
+                    return;
+                }
+
+                cartContainer.innerHTML = this.cart.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-price">${item.price.toFixed(2)} each</div>
+                        </div>
+                        <div class="cart-item-controls">
+                            <div class="qty-control">
+                                <button class="qty-btn" onclick="stockManager.updateCartQuantity('${item.id}', -1)">-</button>
+                                <div class="qty-display">${item.quantity}</div>
+                                <button class="qty-btn" onclick="stockManager.updateCartQuantity('${item.id}', 1)">+</button>
+                            </div>
+                            <button class="remove-item" onclick="stockManager.removeFromCart('${item.id}')" title="Remove item">×</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                this.updateCartTotals();
+            }
+
+            updateCartTotals() {
+                const subtotal = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const tax = subtotal * 0.1; // 10% tax
+                const total = subtotal + tax;
+
+                document.getElementById('cartSubtotal').textContent = `${subtotal.toFixed(2)}`;
+                document.getElementById('cartTax').textContent = `${tax.toFixed(2)}`;
+                document.getElementById('cartTotal').textContent = `${total.toFixed(2)}`;
+
+                // Enable/disable checkout button
+                document.getElementById('checkoutBtn').disabled = this.cart.length === 0;
+            }
+
+            clearCart() {
+                this.cart = [];
+                this.renderCart();
+                this.showNotification('Cart cleared!', 'success');
+            }
+
+            processCheckout() {
+                if (this.cart.length === 0) return;
+
+                const subtotal = this.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const tax = subtotal * 0.1;
+                const total = subtotal + tax;
+                const paymentMethod = document.getElementById('paymentMethod').value;
+                const customerName = document.getElementById('customerName').value || 'Walk-in Customer';
+
+                // Create transaction record
+                const transaction = {
+                    id: Date.now().toString(),
+                    date: new Date().toISOString(),
+                    customer: customerName,
+                    paymentMethod: paymentMethod,
+                    items: [...this.cart],
+                    subtotal: subtotal,
+                    tax: tax,
+                    total: total
+                };
+
+                // Update product quantities
+                this.cart.forEach(cartItem => {
+                    const product = this.products.find(p => p.id === cartItem.id);
+                    if (product) {
+                        product.quantity -= cartItem.quantity;
+                    }
+                });
+
+                // Save transaction and update products
+                this.transactions.push(transaction);
+                this.saveTransactions();
+                this.saveProducts();
+
+                // Clear cart and update displays
+                this.cart = [];
+                this.renderCart();
+                this.renderAvailableProducts();
+                this.updateDashboard();
+
+                // Clear customer name
+                document.getElementById('customerName').value = '';
+
+                // Show success message
+                this.showNotification(`Payment processed! Total: ${total.toFixed(2)}`, 'success');
+                
+                // Show receipt (you could enhance this to print/email)
+                this.showReceipt(transaction);
+            }
+
+            showReceipt(transaction) {
+                const receiptWindow = window.open('', '_blank', 'width=400,height=600');
+                receiptWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Receipt</title>
+                        <style>
+                            body { font-family: monospace; padding: 20px; max-width: 300px; }
+                            .center { text-align: center; }
+                            .line { border-bottom: 1px dashed #000; margin: 10px 0; }
+                            .item { display: flex; justify-content: space-between; margin: 5px 0; }
+                            .total { font-weight: bold; font-size: 1.2em; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="center">
+                            <h2>RECEIPT</h2>
+                            <p>Date: ${new Date(transaction.date).toLocaleString()}</p>
+                            <p>Customer: ${transaction.customer}</p>
+                            <p>Payment: ${transaction.paymentMethod.toUpperCase()}</p>
+                        </div>
+                        <div class="line"></div>
+                        ${transaction.items.map(item => `
+                            <div class="item">
+                                <span>${item.name} x${item.quantity}</span>
+                                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                            </div>
+                        `).join('')}
+                        <div class="line"></div>
+                        <div class="item">
+                            <span>Subtotal:</span>
+                            <span>${transaction.subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="item">
+                            <span>Tax (10%):</span>
+                            <span>${transaction.tax.toFixed(2)}</span>
+                        </div>
+                        <div class="item total">
+                            <span>TOTAL:</span>
+                            <span>${transaction.total.toFixed(2)}</span>
+                        </div>
+                        <div class="line"></div>
+                        <div class="center">
+                            <p>Thank you for your business!</p>
+                        </div>
+                    </body>
+                    </html>
+                `);
+                receiptWindow.document.close();
+            }
+
+            showNotification(message, type) {
+                // Simple notification system
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#48cae4' : type === 'error' ? '#ff6b6b' : '#feca57'};
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                    z-index: 10000;
+                    font-weight: 600;
+                    animation: slideIn 0.3s ease;
+                `;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+        }
+
+        // Initialize the stock manager
+        const stockManager = new StockManager();
+
+        // Add some sample data if no products exist
+        if (stockManager.products.length === 0) {
+            const sampleProducts = [
+                {
+                    id: '1',
+                    name: 'Laptop Computer',
+                    category: 'Electronics',
+                    buyingPrice: 800.00,
+                    sellingPrice: 999.99,
+                    quantity: 15,
+                    expiryDate: '2026-12-31',
+                    supplier: 'Tech Solutions Inc',
+                    dateAdded: new Date().toISOString()
+                },
+                {
+                    id: '2',
+                    name: 'Office Chair',
+                    category: 'Furniture',
+                    buyingPrice: 150.00,
+                    sellingPrice: 199.99,
+                    quantity: 8,
+                    expiryDate: '2025-08-15',
+                    supplier: 'Furniture World',
+                    dateAdded: new Date().toISOString()
+                },
+                {
+                    id: '3',
+                    name: 'Coffee Beans',
+                    category: 'Food',
+                    buyingPrice: 8.00,
+                    sellingPrice: 12.99,
+                    quantity: 25,
+                    expiryDate: '2024-12-01',
+                    supplier: 'Morning Brew Co',
+                    dateAdded: new Date().toISOString()
+                }
+            ];
+
+            stockManager.products = sampleProducts;
+            stockManager.saveProducts();
+            stockManager.renderProducts();
+            stockManager.updateDashboard();
+        }
+    </script>
+</body>
+</html>
